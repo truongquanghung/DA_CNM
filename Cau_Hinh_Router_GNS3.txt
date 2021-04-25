@@ -1,0 +1,29 @@
+// DHCP Router
+conf t
+in f0/0
+no shut
+ip address 192.168.1.1 255.255.255.0
+duplex full
+exit
+
+in f0/1
+no shut
+ip address 10.10.10.1 255.255.255.0
+duplex full
+exit
+
+service dhcp
+ip dhcp excluded-address 192.168.1.1 192.168.1.10
+ip dhcp pool DHCP
+network 192.168.1.0 255.255.255.0
+default-router 192.168.1.1
+dns-server 192.168.1.1
+exit
+
+ip dhcp excluded-address 10.10.10.1 10.10.10.10
+ip dhcp pool OUTSIDE
+network 10.10.10.0 255.255.255.0
+default-router 10.10.10.1
+dns-server 10.10.10.1
+end
+wr

@@ -1,0 +1,7 @@
+﻿Step 1: Mở file local.rules dưới quyền root bằng Terminal
+sudo su
+cd /etc/nsm/rules
+mousepad local.rules
+
+Step 2: Thêm luật theo chuẩn format của Security Onion, lưu file
+Step 3: Cập nhật luật từ động bằng lệnh: rule-update
