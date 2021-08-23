@@ -1,0 +1,235 @@
+<head>
+	<script>
+		function ValidateIPaddress(ipaddress) {
+			var ipformat = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+			if (ipaddress=='any' || ipaddress=="") return true;
+			if (ipaddress.match(ipformat)) return true;
+			return false;
+		}
+		function ValidatePort(port) {
+			if (port=="any" || port=="") return true;
+			if (!(/^[1-9]\d*$/.test(port) && 1 <= 1 * port && 1 * port <= 65535)) return false
+			return true;
+		}
+		function ValidateSID(num) {
+			if (!(/^[1-9]\d*$/.test(num) && 1000000 <= 1 * num && 1 * num <= 999999999)) return false
+			return true;
+		}
+		function ValidateRange(num) {
+			if (!(/^[1-9]\d*$/.test(num) && 1 <= 1 * num && 1 * num <= 999999999)) return false
+			return true;
+		}
+		function ValidateOffset(offset) {
+			return Number.isInteger(1 * offset);
+		}
+		function ValidateDepth(num) {
+			if (!(/^[1-9]\d*$/.test(num) && 1 <= 1 * num && 1 * num <= 65535)) return false
+			return true;
+		}
+		function ValidateString(s) {
+			var a = s.split(' ');
+			if (a.length>1) return false;
+			return true;
+		}
+		function FormatContent(content) {
+			var s = content+'';
+			s=s.replace(/\"/g,'|22|');
+			s=s.replace(/\'/g,'|27|');
+			s=s.replace(/\;/g,'|3b|');
+			s=s.replace(/\:/g,'|3a|');
+			s=s.replace(/\\/g,'|5c|');
+			s=s.split('||').join(' ');
+			return s;
+		}
+		function fun() {
+			var rule = "alert ";
+			var protocol = document.getElementById("protocol").value;
+			var sip = document.getElementById("sip").value;
+			if (!ValidateIPaddress(sip)) {
+				sip="";
+				document.getElementById("sip").value="Invalid";
+			}
+			var sport = document.getElementById("sport").value;
+			if (!ValidatePort(sport)) {
+				sport="";
+				document.getElementById("sport").value="Invalid";
+			}
+			var dip = document.getElementById("dip").value;
+			if (!ValidateIPaddress(dip)) {
+				dip="";
+				document.getElementById("dip").value="Invalid";
+			}
+			var dport = document.getElementById("dport").value;
+			if (!ValidatePort(dport)) {
+				dport="";
+				document.getElementById("dport").value="Invalid";
+			}
+			rule = rule+protocol+" "+sip+" "+sport+" "+document.getElementById("direction").value+" "+dip+" "+dport;
+			var option = "";
+			var msg = document.getElementById("msg").value.replace(/\"/g,"'");;
+			if (msg!="") option += 'msg:"'+msg+'"; ';
+			var content = document.getElementById("content").value;
+			if (content!="") {
+				if (document.getElementById("not").checked) option += 'content:!"';
+					else option += 'content:"';
+				content = FormatContent(content);
+				option += content+'"; ';
+				var offset = document.getElementById("offset").value;
+				if (offset!="") 
+					if (ValidateOffset(offset)) option += 'offset:'+offset+'; ';
+						else document.getElementById("offset").value="Invalid";
+				var depth = document.getElementById("depth").value;
+				if (depth!="") 
+					if (ValidateDepth(depth)) option += 'depth:'+depth+'; ';
+						else document.getElementById("depth").value="Invalid";
+				if (document.getElementById("nocase").checked) option+='nocase; ';
+				if (document.getElementById("uri").checked) option+='http_uri; ';
+			}
+			var classtype = document.getElementById("classtype").value;
+			ValidateString(classtype);
+			if (classtype!="") 
+				if (ValidateString(classtype)) option+='classtype:'+classtype+'; ';
+					else document.getElementById("classtype").value="Invalid";
+			var pri = document.getElementById("pri").value;
+			if (pri!="") option+='priority:'+pri+'; ';
+			var sid = document.getElementById("sid").value;
+			if (sid!="") 
+				if (ValidateSID(sid)) option += 'sid:'+sid+'; ';
+					else document.getElementById("sid").value="Invalid";
+			var rev = document.getElementById("rev").value;
+			if (rev!="") 
+				if (ValidateRange(rev)) option += 'rev:'+rev+'; ';
+					else document.getElementById("rev").value="Invalid";
+			if (option!="") rule = rule+" ( "+option+")";
+			document.getElementById("view").value = rule;
+		}
+		function save() {
+			var copyText = document.getElementById("view");
+			copyText.select();
+			document.execCommand("copy");
+			alert("Copied the text: " + copyText.value);
+		}
+	</script>
+	<style type="text/css">
+		body
+		{
+			background-color: #f1f1f1;
+			white-space: nowrap;
+			overflow: auto;
+			text-align: center;
+			font-family: Helvetica;
+			vertical-align: middle;
+			font-size: 0;
+		}
+		.TOOL {
+			color: #6edcf7;
+			font-size: 72px;
+			font-weight: bold;
+			font-family: Helvetica;
+		}
+		.header2{
+			font-size: 20px;
+		}
+		td {
+			padding:0 10px 0 10px;
+		}
+		input.largerCheckbox {
+            width: 20px;
+            height: 20px;
+        }
+	</style>
+</head>
+<body>
+	<div class="header2">
+	<h1><span class="TOOL">Tool make rule</span></h1>
+	<p style="text-align: center;"><span style="font-size: 20px;">Web-Based Security Onion rule creator by Truong Quang Hung</span></p>
+	</div>
+
+	<form >
+		<table align="center">
+			<tr>
+				<td><h2>Rule Header</h2></td>
+			</tr>
+			<tr> 
+				<td>Protocol: </td>
+				<td>
+					<select id="protocol" onblur=fun() onchange=fun()>
+						<option value="tcp">TCP</option>
+						<option value="udp">UDP</option>
+						<option value="icmp">ICMP</option>
+						<option value="ip">IP</option>
+					</select>
+				</td>
+				<td>Direction: </td>
+				<td>
+					<select id="direction" onblur=fun() onchange=fun()>
+						<option value="->">-></option></option>
+						<option value="<>"><></option>
+					</select>
+				</td>
+			</tr>
+			<tr> 
+				<td>Source IP: </td>
+				<td><input type="text" id="sip" onblur=fun() placeholder="any"></td>
+				<td>Source Port: </td>
+				<td><input type="text" id="sport" onblur=fun() placeholder="any"></td>
+			</tr>
+			<tr> 
+				<td>Destination IP: </td>
+				<td><input type="text" id="dip" onblur=fun() placeholder="any"></td>
+				<td>Destination Port: </td>
+				<td><input type="text" id="dport" onblur=fun() placeholder="any"></td>
+			</tr>
+			<tr height="20"><td></td></tr>
+			<tr>
+				<td><h2>Rule Options</h2></td>
+			</tr>
+			<tr>
+				<td>Message:</td>
+				<td><input type="text" id="msg" onblur=fun() placeholder="Rule message"></td>
+			</tr>
+			<tr> 
+				<td>Signature ID: </td>
+				<td><input type="text" id="sid" onblur=fun() placeholder="sid"></td>
+				<td>Revision: </td>
+				<td><input type="text" id="rev" onblur=fun() placeholder="rev"></td>
+			</tr>
+			<tr> 
+				<td>Class Type: </td>
+				<td><input type="text" id="classtype" onblur=fun() placeholder="Class-Type"></td>
+				<td>Priority: </td>
+				<td>
+					<select id="pri" onblur=fun() onchange=fun()>
+						<option value=""></option>
+						<option value="1">1</option>
+						<option value="2">2</option>
+						<option value="3">3</option>
+						<option value="4">4</option>
+						<option value="5">5</option>
+					</select>
+				</td>
+			</tr>
+			<tr> 
+				<td>Content: </td>
+				<td><input type="text" id="content" onblur=fun() placeholder="Content match"></td>
+				<td><input type="text" id="offset" onblur=fun() placeholder="Offset"></td>
+				<td><input type="text" id="depth" onblur=fun() placeholder="Depth"></td>
+			</tr>
+			<tr> 
+				<td>Options for content: </td>
+				<td><font style="font-size:20px;">nocase<input type="checkbox" id="nocase" onchange=fun() class="largerCheckbox"></td>
+				<td><font style="font-size:20px;">uri<input type="checkbox" id="uri" onchange=fun() class="largerCheckbox"></td>
+				<td><font style="font-size:20px;">not<input type="checkbox" id="not" onchange=fun() class="largerCheckbox"></td>
+			</tr>
+		</table>		
+		<table align="center">
+			<tr height="20"><td></td></tr>
+			<tr>
+			<td><textarea id="view" name="view" style="font-size: 20px; text-align:center;" rows="4" cols="100">	</textarea></td>
+			</tr>
+			<tr align="center">
+				<td><input type="button" style="font-size: 20px;" value="Copy rule to Clipboard" onclick=save()></td>
+			</tr>
+		</table>
+	</form>
+</body>

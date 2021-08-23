@@ -27,3 +27,6 @@ default-router 10.10.10.1
 dns-server 10.10.10.1
 end
 wr
+
+// show ip dhcp binding
+// show ip dhcp server statistics
